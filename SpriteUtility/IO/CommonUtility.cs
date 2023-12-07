@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using SpriteUtility.DBAM;
 using AnimatedGif;
@@ -59,21 +60,35 @@ namespace SpriteUtility.IO
                     pair.TexPath = texPath;
                 }
             }
+            
+            // This font will be used when drawing the frame count and animation names to the sprite sheet.
+            const int FontHeight = 10;
+            const int SheetSpriteBelowFontOffset = FontHeight + 8;
+            Font sheetFont = new Font("Arial", FontHeight);
 
+            // The large sprite sheet should contain every animation and parts.
+            int largeSheetWidth = 0;
+            int largeSheetHeight = 0;
+
+            Bitmap[] largeSheetHorizontalAnimationSpreads = new Bitmap[filePairs.Count];
+
+            int animIdx = -1;
             foreach (var pair in filePairs.Values)
             {
                 if (!File.Exists(pair.AnimPath) || !File.Exists(pair.TexPath))
                     continue;
+
+                animIdx++;
                 
                 const string NowWorkingOn = "Now working on: ";
                 const string RootOutPathIs = "Root output path: ";
                 const string AnimPathIs = "Animation path: ";
                 const string TexPathIs = "Texture path: ";
                 
-                Console.WriteLine(NowWorkingOn + pair.Name);
-                Console.WriteLine(RootOutPathIs + pair.RootOutputDirectory);
-                Console.WriteLine(AnimPathIs + pair.AnimPath);
-                Console.WriteLine(TexPathIs + pair.TexPath);
+                Console.WriteLine($"Now working on: {pair.Name}");
+                Console.WriteLine($"Root output path: {pair.RootOutputDirectory}");
+                Console.WriteLine($"Animation path: {pair.AnimPath}");
+                Console.WriteLine($"Texture path: {pair.TexPath}");
                 Console.WriteLine(SeparatorHappy);
 
                 Directory.CreateDirectory(pair.RootOutputDirectory);
@@ -92,6 +107,7 @@ namespace SpriteUtility.IO
 
                 Bitmap plainHorizontalSheetBitmap = new Bitmap(arrangementBitmaps[0].Width * arrangementBitmaps.Length, arrangementBitmaps[0].Height);
                 
+                
                 for (int arrIdx = 0; arrIdx < arrangementBitmaps.Length; arrIdx++)
                 {
                     const string SavingTo = "Saving to: ";
@@ -108,12 +124,39 @@ namespace SpriteUtility.IO
                         graphics.DrawImage(arrBitmap, arrBitmap.Width * arrIdx, 0);
                     }
                 }
+
+                Bitmap largeSpreadPieceBitmap = new Bitmap(arrangementBitmaps[0].Width * animation.Frames.Length,
+                    arrangementBitmaps[0].Height + SheetSpriteBelowFontOffset);
+
+                using (Graphics graphics = Graphics.FromImage(largeSpreadPieceBitmap))
+                {
+                    graphics.SmoothingMode = SmoothingMode.HighQuality;
+                    
+                    for (int frameIdx = 0; frameIdx < animation.Frames.Length; frameIdx++)
+                    {
+                        FrameData frameData = animation.Frames[frameIdx];
+                        
+                        string frameString = $"x{frameData.StopLength.ToString()}";
+                        // System.Drawing.SizeF frameStringSize = graphics.MeasureString(frameString, sheetFont);
+                        
+                        Bitmap arrBitmap = arrangementBitmaps[frameData.ArrangementIndex];
+                        
+                        // Does yellow contrast well?
+                        graphics.DrawString(frameString, sheetFont, Brushes.Yellow, frameIdx * arrBitmap.Width, 0);
+                        graphics.DrawImage(arrBitmap, frameIdx * arrBitmap.Width, SheetSpriteBelowFontOffset);
+                    }
+                }
+                
+                largeSpreadPieceBitmap.Save(Path.Join(pair.RootOutputDirectory, pair.Name + "_sheet_labeled_timing.png"));
+
                 
                 // Save as a sheet
                 plainHorizontalSheetBitmap.Save(Path.Join(pair.RootOutputDirectory, pair.Name + "_sheet.png"));
+                
+                // Prepare for the large sheet
 
                 // Make a GIF out of it as well
-                using (var gif = new AnimatedGifCreator(Path.Join(pair.RootOutputDirectory, pair.Name + "_anim.gif"), 16))
+                using (var gif = new AnimatedGifCreator(Path.Join(pair.RootOutputDirectory, pair.Name + "_anim.gif"), 33))
                 {
                     for (int frameIdx = 0; frameIdx < animation.Frames.Length; frameIdx++)
                     {
@@ -123,16 +166,29 @@ namespace SpriteUtility.IO
                         gif.AddFrame(arrBitmap, frameData.StopLength * 16, GifQuality.Bit8);
                     }
                 }
-
+                
+                // And a 4x size GIF as well, for sharing around
                 using (var gif = new AnimatedGifCreator(Path.Join(pair.RootOutputDirectory, pair.Name + "_anim_4x.gif"),
-                           16))
+                           33))
                 {
                     for (int frameIdx = 0; frameIdx < animation.Frames.Length; frameIdx++)
                     {
                         FrameData frameData = animation.Frames[frameIdx];
                         Bitmap arrBitmap = arrangementBitmaps[frameData.ArrangementIndex];
-                        
-                        using (Graphics g = Graphics.FromImage())
+
+                        Bitmap resizedBitmap = new Bitmap(arrBitmap.Width * 4, arrBitmap.Height * 4);
+
+                        using (Graphics g = Graphics.FromImage(resizedBitmap))
+                        {
+                            g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                            g.SmoothingMode = SmoothingMode.None;
+                            g.PixelOffsetMode = PixelOffsetMode.None;
+
+                            g.DrawImage(arrBitmap, new Rectangle(0, 0, resizedBitmap.Width, resizedBitmap.Height),
+                                new Rectangle(0, 0, arrBitmap.Width, arrBitmap.Height), GraphicsUnit.Pixel);
+                        }
+
+                        gif.AddFrame(resizedBitmap, frameData.StopLength * 16, GifQuality.Bit8);
                     }
                 }
 
