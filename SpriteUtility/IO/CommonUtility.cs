@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.IO;
 using SpriteUtility.DBAM;
 using AnimatedGif;
@@ -18,6 +19,16 @@ namespace SpriteUtility.IO
             public string AnimPath = "";
             public string TexPath = "";
         }
+        
+        // Used to make general files for a character, rather than animation-specific ones.
+        private sealed class CollectiveDirectoryInfo
+        {
+            public string Name;
+            public string Dir;
+            public List<AnimFilePair> FilePairs;
+            public List<Bitmap> TimeLabeledSheetBitmaps;
+        }
+        
         
         public static void WriteAllSpriteData(string inputDirectory, string outputDirectory, SpriteProcessingMode mode)
         {
@@ -60,17 +71,17 @@ namespace SpriteUtility.IO
                     pair.TexPath = texPath;
                 }
             }
+
+            
+            // Keeps track of per-character data.
+            // Keys are directories.
+            Dictionary<string, CollectiveDirectoryInfo> directoryPlusCollectiveMap = new();
+            
             
             // This font will be used when drawing the frame count and animation names to the sprite sheet.
-            const int FontHeight = 10;
-            const int SheetSpriteBelowFontOffset = FontHeight + 8;
+            const int FontHeight = 7;
+            const int SheetSpriteBelowFontOffset = FontHeight * 2;
             Font sheetFont = new Font("Arial", FontHeight);
-
-            // The large sprite sheet should contain every animation and parts.
-            int largeSheetWidth = 0;
-            int largeSheetHeight = 0;
-
-            Bitmap[] largeSheetHorizontalAnimationSpreads = new Bitmap[filePairs.Count];
 
             int animIdx = -1;
             foreach (var pair in filePairs.Values)
@@ -106,21 +117,22 @@ namespace SpriteUtility.IO
                 Debug.Print("Arrangement bitmaps created.");
 
                 Bitmap plainHorizontalSheetBitmap = new Bitmap(arrangementBitmaps[0].Width * arrangementBitmaps.Length, arrangementBitmaps[0].Height);
-                
-                
-                for (int arrIdx = 0; arrIdx < arrangementBitmaps.Length; arrIdx++)
-                {
-                    const string SavingTo = "Saving to: ";
-                    
-                    string savePath = Path.Join(pair.ArrangementImagesOutputDirectory, arrIdx.ToString().PadLeft(2, '0') + ".png");
-                    
-                    Console.WriteLine(SavingTo + savePath);
-                    
-                    Bitmap arrBitmap = arrangementBitmaps[arrIdx];
-                    arrBitmap.Save(savePath);
 
-                    using (Graphics graphics = Graphics.FromImage(plainHorizontalSheetBitmap))
+
+                using (Graphics graphics = Graphics.FromImage(plainHorizontalSheetBitmap))
+                {
+                    for (int arrIdx = 0; arrIdx < arrangementBitmaps.Length; arrIdx++)
                     {
+                        const string SavingTo = "Saving to: ";
+
+                        string savePath = Path.Join(pair.ArrangementImagesOutputDirectory,
+                            arrIdx.ToString().PadLeft(2, '0') + ".png");
+
+                        Console.WriteLine(SavingTo + savePath);
+
+                        Bitmap arrBitmap = arrangementBitmaps[arrIdx];
+                        arrBitmap.Save(savePath);
+                        
                         graphics.DrawImage(arrBitmap, arrBitmap.Width * arrIdx, 0);
                     }
                 }
@@ -131,12 +143,20 @@ namespace SpriteUtility.IO
                 using (Graphics graphics = Graphics.FromImage(largeSpreadPieceBitmap))
                 {
                     graphics.SmoothingMode = SmoothingMode.HighQuality;
+                    graphics.PixelOffsetMode = PixelOffsetMode.None;
+                    graphics.CompositingMode = CompositingMode.SourceOver;
+                    graphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
+                    graphics.TextContrast = 5;
+                    graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
+
+                    int lineYOffset = SheetSpriteBelowFontOffset - 2;
+                    graphics.DrawLine(Pens.Yellow, 0, lineYOffset, animation.Frames.Length * largeSpreadPieceBitmap.Width, lineYOffset);
                     
                     for (int frameIdx = 0; frameIdx < animation.Frames.Length; frameIdx++)
                     {
                         FrameData frameData = animation.Frames[frameIdx];
                         
-                        string frameString = $"x{frameData.StopLength.ToString()}";
+                        string frameString = @$"×{frameData.StopLength.ToString()}";
                         // System.Drawing.SizeF frameStringSize = graphics.MeasureString(frameString, sheetFont);
                         
                         Bitmap arrBitmap = arrangementBitmaps[frameData.ArrangementIndex];
@@ -192,10 +212,85 @@ namespace SpriteUtility.IO
                     }
                 }
 
+                CollectiveDirectoryInfo currentColDirInfo;
+                
+                if (directoryPlusCollectiveMap.ContainsKey(pair.RootOutputDirectory))
+                {
+                    currentColDirInfo = directoryPlusCollectiveMap[pair.RootOutputDirectory];
+                }
+                else
+                {
+                    currentColDirInfo = new CollectiveDirectoryInfo
+                    {
+                        Name = new DirectoryInfo(pair.RootOutputDirectory).Name,
+                        Dir = pair.RootOutputDirectory,
+                        FilePairs = new List<AnimFilePair>(),
+                        TimeLabeledSheetBitmaps = new List<Bitmap>(),
+                    };
+                    
+                    directoryPlusCollectiveMap.Add(pair.RootOutputDirectory, currentColDirInfo);
+                }
+
+                currentColDirInfo.FilePairs.Add(pair);
+                currentColDirInfo.TimeLabeledSheetBitmaps.Add(largeSpreadPieceBitmap);
+
                 string jsonAnimationString = AnimationUtility.GetAnimationAsJsonString(animation);
                 File.WriteAllText(Path.Join(pair.RootOutputDirectory, pair.Name + "_base_anim_data.json"), jsonAnimationString);
                 
                 Console.WriteLine(SeparatorWide);
+            }
+
+            foreach (CollectiveDirectoryInfo colDirInfo in directoryPlusCollectiveMap.Values)
+            {
+                const int SheetNamePadding = SheetSpriteBelowFontOffset;
+                
+                int timedCollectiveSheetBitmapSizeX = 0;
+                int timedCollectiveSheetBitmapSizeY = 0;
+
+                for (int bmIdx = 0; bmIdx < colDirInfo.TimeLabeledSheetBitmaps.Count; bmIdx++)
+                {
+                    Bitmap curBitmap = colDirInfo.TimeLabeledSheetBitmaps[bmIdx];
+                    
+                    // Fit the max width
+                    timedCollectiveSheetBitmapSizeX = Math.Max(curBitmap.Width, timedCollectiveSheetBitmapSizeX);
+                    
+                    // While vertically it needs to fit all the different animations with their names
+                    timedCollectiveSheetBitmapSizeY += (SheetNamePadding + curBitmap.Height);
+                }
+                
+                Bitmap timedCollectiveSheetBitmap = new Bitmap(timedCollectiveSheetBitmapSizeX, timedCollectiveSheetBitmapSizeY);
+
+                using (Graphics g = Graphics.FromImage(timedCollectiveSheetBitmap))
+                {
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+                    g.TextRenderingHint = TextRenderingHint.AntiAlias;
+                    g.PixelOffsetMode = PixelOffsetMode.None;
+
+                    int currentDrawOffsetY = 0;
+                    
+                    for (int bmIdx = 0; bmIdx < colDirInfo.TimeLabeledSheetBitmaps.Count; bmIdx++)
+                    {
+                        const int LineDrawOffsetBase = 2;
+                        const int NameStringDrawOffsetBase = 4;
+                        
+                        Bitmap animBitmap = colDirInfo.TimeLabeledSheetBitmaps[bmIdx];
+                        AnimFilePair animData = colDirInfo.FilePairs[bmIdx]; // should be the same as bmIdx... please
+
+                        int lineDrawOffset = LineDrawOffsetBase + currentDrawOffsetY;
+                        int nameStringDrawOffset = NameStringDrawOffsetBase + currentDrawOffsetY;
+                        int bmDrawOffset = currentDrawOffsetY + SheetNamePadding;
+                        
+                        g.DrawLine(Pens.Red, 0, lineDrawOffset, timedCollectiveSheetBitmap.Width, lineDrawOffset );
+                        g.DrawString(animData.Name, sheetFont, Brushes.Red, 0, nameStringDrawOffset);
+                        g.DrawImage(animBitmap, 0, bmDrawOffset);
+                        
+                        // Increment the Y offset for the next animation
+                        currentDrawOffsetY += (animBitmap.Height + SheetNamePadding);
+                    }
+                }
+                
+                timedCollectiveSheetBitmap.Save(Path.Join(colDirInfo.Dir, colDirInfo.Name + "_collective_timed_sheet.png"));
             }
             
             Console.WriteLine("Finished dumping units!");
