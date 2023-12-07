@@ -1,0 +1,59 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DsocAssetUtilities", "DsocAssetUtilities.csproj", "{598836C1-7D8A-4627-A82C-E434463EC719}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpriteUtility", "SpriteUtility\SpriteUtility.csproj", "{78878603-131C-467A-AA10-3C71416C3551}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scarlet", "Scarlet\Scarlet\Scarlet.csproj", "{C47644EA-FD67-49EB-A2BF-E1ECA482912C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scarlet.IO.CompressionFormats", "Scarlet\Scarlet.IO.CompressionFormats\Scarlet.IO.CompressionFormats.csproj", "{A1CFFF31-144A-43D6-81A8-3202C6B9F0CB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scarlet.IO.ContainerFormats", "Scarlet\Scarlet.IO.ContainerFormats\Scarlet.IO.ContainerFormats.csproj", "{6F2A7FA3-E5E2-4A61-941C-C43E48714725}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scarlet.IO.ImageFormats", "Scarlet\Scarlet.IO.ImageFormats\Scarlet.IO.ImageFormats.csproj", "{AE5D9794-220D-4275-8815-C39D9FD7ED1F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+	Debug|Any CPU = Debug|Any CPU
+	ExportDebug|Any CPU = ExportDebug|Any CPU
+	ExportRelease|Any CPU = ExportRelease|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{598836C1-7D8A-4627-A82C-E434463EC719}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{598836C1-7D8A-4627-A82C-E434463EC719}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{598836C1-7D8A-4627-A82C-E434463EC719}.ExportDebug|Any CPU.ActiveCfg = ExportDebug|Any CPU
+		{598836C1-7D8A-4627-A82C-E434463EC719}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
+		{598836C1-7D8A-4627-A82C-E434463EC719}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
+		{598836C1-7D8A-4627-A82C-E434463EC719}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+		{78878603-131C-467A-AA10-3C71416C3551}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78878603-131C-467A-AA10-3C71416C3551}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78878603-131C-467A-AA10-3C71416C3551}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78878603-131C-467A-AA10-3C71416C3551}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{78878603-131C-467A-AA10-3C71416C3551}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{78878603-131C-467A-AA10-3C71416C3551}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
+		{C47644EA-FD67-49EB-A2BF-E1ECA482912C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C47644EA-FD67-49EB-A2BF-E1ECA482912C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C47644EA-FD67-49EB-A2BF-E1ECA482912C}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C47644EA-FD67-49EB-A2BF-E1ECA482912C}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{C47644EA-FD67-49EB-A2BF-E1ECA482912C}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{C47644EA-FD67-49EB-A2BF-E1ECA482912C}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
+		{A1CFFF31-144A-43D6-81A8-3202C6B9F0CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1CFFF31-144A-43D6-81A8-3202C6B9F0CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1CFFF31-144A-43D6-81A8-3202C6B9F0CB}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1CFFF31-144A-43D6-81A8-3202C6B9F0CB}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{A1CFFF31-144A-43D6-81A8-3202C6B9F0CB}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1CFFF31-144A-43D6-81A8-3202C6B9F0CB}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
+		{6F2A7FA3-E5E2-4A61-941C-C43E48714725}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F2A7FA3-E5E2-4A61-941C-C43E48714725}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F2A7FA3-E5E2-4A61-941C-C43E48714725}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F2A7FA3-E5E2-4A61-941C-C43E48714725}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{6F2A7FA3-E5E2-4A61-941C-C43E48714725}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F2A7FA3-E5E2-4A61-941C-C43E48714725}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
+		{AE5D9794-220D-4275-8815-C39D9FD7ED1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE5D9794-220D-4275-8815-C39D9FD7ED1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE5D9794-220D-4275-8815-C39D9FD7ED1F}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE5D9794-220D-4275-8815-C39D9FD7ED1F}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{AE5D9794-220D-4275-8815-C39D9FD7ED1F}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE5D9794-220D-4275-8815-C39D9FD7ED1F}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+EndGlobal

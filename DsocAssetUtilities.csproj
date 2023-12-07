@@ -1,0 +1,26 @@
+<Project Sdk="Godot.NET.Sdk/4.2.0">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net7.0</TargetFramework>
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'ios' ">net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+    <PackageReference Include="YamlDotNet" Version="13.7.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Scarlet\ScarletWinTest\**" />
+    <Compile Remove="SpriteUtility\**" />
+    <Compile Remove="Scarlet\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="Scarlet\ScarletWinTest\**" />
+    <EmbeddedResource Remove="SpriteUtility\**" />
+    <EmbeddedResource Remove="Scarlet\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="SpriteUtility\SpriteUtility.csproj" />
+  </ItemGroup>
+</Project>

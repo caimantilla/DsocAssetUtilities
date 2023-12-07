@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AnimatedGif" Version="1.0.5" />
+      <PackageReference Include="YamlDotNet" Version="13.7.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Scarlet\Scarlet.IO.CompressionFormats\Scarlet.IO.CompressionFormats.csproj" />
+      <ProjectReference Include="..\Scarlet\Scarlet.IO.ContainerFormats\Scarlet.IO.ContainerFormats.csproj" />
+      <ProjectReference Include="..\Scarlet\Scarlet.IO.ImageFormats\Scarlet.IO.ImageFormats.csproj" />
+      <ProjectReference Include="..\Scarlet\Scarlet\Scarlet.csproj" />
+    </ItemGroup>
+
+</Project>
