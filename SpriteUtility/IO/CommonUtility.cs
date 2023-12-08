@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.IO;
-using SpriteUtility.DBAM;
+using DBAM;
 using AnimatedGif;
 
 namespace SpriteUtility.IO
@@ -106,7 +106,7 @@ namespace SpriteUtility.IO
                 Directory.CreateDirectory(pair.ArrangementImagesOutputDirectory);
                 Debug.Print("Directory created.");
 
-                AnimationData animation = AnimationUtility.ReadAnimationFromPath(pair.AnimPath);
+                AnimationData animation = DBAM.Serialization.BinaryDeserializer.Deserialize(pair.AnimPath);
                 Debug.Print("Animation created.");
                 Bitmap partsBitmap = ImageUtility.GetDbmBitmapFromPath(pair.TexPath);
                 Debug.Print("Parts bitmap created.");
@@ -236,6 +236,9 @@ namespace SpriteUtility.IO
 
                 string jsonAnimationString = AnimationUtility.GetAnimationAsJsonString(animation);
                 File.WriteAllText(Path.Join(pair.RootOutputDirectory, pair.Name + "_base_anim_data.json"), jsonAnimationString);
+
+                string yamlAnimationString = AnimationUtility.GetAnimationAsYamlString(animation);
+                File.WriteAllText(Path.Join(pair.RootOutputDirectory, pair.Name + "_base_anim_data.yaml"), yamlAnimationString);
                 
                 Console.WriteLine(SeparatorWide);
             }
