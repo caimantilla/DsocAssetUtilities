@@ -1,4 +1,6 @@
-﻿using DBAM;
+﻿using System.Drawing;
+using System.Drawing.Drawing2D;
+using DBAM;
 
 namespace SpriteUtility.IO
 {
@@ -59,32 +61,43 @@ namespace SpriteUtility.IO
             {
                 ArrangementData arrangement = animation.Arrangements[arrIdx];
                 System.Drawing.Bitmap arrangementBitmap = new (bmSizeX, bmSizeY);
-                
-                // The sprites are listed in the opposite of draw order
-                for (int sprIdx = arrangement.Sprites.Length - 1; -1 < sprIdx; sprIdx--)
+
+                using (var arrGraphic = System.Drawing.Graphics.FromImage(arrangementBitmap))
                 {
-                    SpriteData sprite = arrangement.Sprites[sprIdx];
+                    arrGraphic.InterpolationMode = InterpolationMode.NearestNeighbor;
+                    arrGraphic.SmoothingMode = SmoothingMode.None;
+                    arrGraphic.CompositingMode = CompositingMode.SourceOver;
 
-                    for (int x = sprite.TexturePositionX; x < (sprite.TexturePositionX + sprite.TextureSizeX); x++)
+                    // The sprites are listed in the opposite of draw order, so iterate through them backwards.
+                    for (int sprIdx = arrangement.Sprites.Length - 1; -1 < sprIdx; sprIdx--)
                     {
-                        for (int y = sprite.TexturePositionY; y < (sprite.TexturePositionY + sprite.TextureSizeY); y++)
-                        {
-                            // Some sprites seem to have out-of-range texture sizes?? Like Decarabia's d045_01_f.dbam
-                            // So perform this additional check before setting the pixel...
-                            if (partsBitmap.Width <= x || partsBitmap.Height <= y)
-                                continue;
-                            
-                            // Don't overlay invisible parts.
-                            // Maybe the colors should be blended instead...?
-                            System.Drawing.Color pixelColor = partsBitmap.GetPixel(x, y);
-                            if (pixelColor.A == 0)
-                                continue;
-                            
-                            int destinationX = x - sprite.TexturePositionX + sprite.WorldPositionX - bmPosX;
-                            int destinationY = y - sprite.TexturePositionY + sprite.WorldPositionY - bmPosY;
+                        SpriteData sprite = arrangement.Sprites[sprIdx];
+                        System.Drawing.Bitmap spriteBitmap = new(sprite.TextureSizeX, sprite.TextureSizeY);
 
-                            arrangementBitmap.SetPixel(destinationX, destinationY, pixelColor);
+                        using (var sprGraphic = System.Drawing.Graphics.FromImage(spriteBitmap))
+                        {
+                            sprGraphic.DrawImage(partsBitmap, 
+                                0, 0, new Rectangle(
+                                    sprite.TexturePositionX, 
+                                    sprite.TexturePositionY, 
+                                    sprite.TexturePositionX + sprite.TextureSizeX, 
+                                    sprite.TexturePositionY + sprite.TextureSizeY), GraphicsUnit.Pixel
+                                );
                         }
+
+                        if (sprite.FlipH)
+                        {
+                            spriteBitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                        }
+                        
+                        arrGraphic.DrawImage(spriteBitmap,
+                            sprite.WorldPositionX - bmPosX,
+                            sprite.WorldPositionY - bmPosY,
+                            new Rectangle(0, 0, spriteBitmap.Width, spriteBitmap.Height),
+                            GraphicsUnit.Pixel
+                        );
+                        
+                        
                     }
                 }
 
